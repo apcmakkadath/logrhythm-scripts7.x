@@ -16,7 +16,7 @@ function red
 
 
 ### Setting OR reading values for system optimization
-set-executionpolicy unrestricted
+set-executionpolicy -scope LocalMachine unrestricted -Force
 write-output "Powershell Execution policy is" | green
 get-executionpolicy | red
 pause
@@ -26,7 +26,7 @@ hostname | red
 pause
 
 Write-Output "Windows defender status" | green
-Get-MpComputerStatus | red
+Get-MpComputerStatus | select *enabled 
 pause
 
 write-output "Windows Dender AV Status" | green ## Modified to show the status only
@@ -46,11 +46,14 @@ Write-Output "Dot net frameowrk version:" | green
 (Get-ItemProperty "HKLM:SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full").Version | red
 pause
 
-ping $(Hostname)
+ping $(Hostname) 
 pause
 
 Write-Output "Disk drives" | green
-Get-PSDrive
+Get-PSDrive | findstr ":"
+pause
+Get-Volume
+pause
 FSUTIL.EXE 8dot3name set c: 1
 FSUTIL.EXE 8dot3name set d: 1 
 FSUTIL.EXE 8dot3name set l: 1 
@@ -94,17 +97,28 @@ stop-service -force -name Themes
 set-service -Name Themes -Status Stopped -StartupType Disabled
 stop-service -force -name Spooler
 set-service -Name Spooler -Status Stopped -StartupType Disabled
+stop-service -force -name WinRM
+set-service -Name WinRM -Status Stopped -StartupType Disabled
+stop-service -force -name Audiosrv
+set-service -Name Audiosrv -Status Stopped -StartupType Disabled
+stop-service -force -name BTAGService
+set-service -Name BTAGService -Status Stopped -StartupType Disabled
+stop-service -force -name bthserv
+set-service -Name bthserv -Status Stopped -StartupType Disabled
 pause
 
 write-output "Change startup" | green
 msconfig
 
-<#Write-Output "Setting up desktop" | green
-copy "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Microsoft SQL Server Tools 17\Microsoft SQL Server Management Studio 17.lnk" "C:\Users\All Users\Desktop"
-copy "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\LogRhythm\*.lnk" "C:\Users\All Users\Desktop"
-#>
+
 $TargetFile = "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell_ise.exe"
 $ShortcutFile = "$env:Public\Desktop\poweshell_ise.lnk"
+$WScriptShell = New-Object -ComObject WScript.Shell
+$Shortcut = $WScriptShell.CreateShortcut($ShortcutFile)
+$Shortcut.TargetPath = $TargetFile
+$Shortcut.Save()
+$TargetFile = "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe"
+$ShortcutFile = "$env:Public\Desktop\poweshell.lnk"
 $WScriptShell = New-Object -ComObject WScript.Shell
 $Shortcut = $WScriptShell.CreateShortcut($ShortcutFile)
 $Shortcut.TargetPath = $TargetFile
@@ -122,8 +136,11 @@ Write-Output "Setting UAC" | green
 Set-ItemProperty -Path REGISTRY::HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System -Name ConsentPromptBehaviorAdmin -Value 0
 pause
 
+Write-Output "Attempting TCP/IP Reset" | green
+ipconfig /flushdns
+ipconfig /registerdns
+#netsh winsock reset #Possibly Resets the NIC card and IP settings
+#netsh int ip reset #Possibly Resets the NIC card and IP settings
+
+CLS
 Write-Output "Reboot the System" | red
-
-
-
-
