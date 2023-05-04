@@ -83,9 +83,25 @@ umask
 
 line_separator
 tput setaf 1;echo "SE status";tput sgr0
-### edit /etc/sysconfig/selinux ###
+### editing /etc/sysconfig/selinux ###
 sed 's/\=enforcing/\=permissive/g' /etc/sysconfig/selinux
 sestatus 
+
+line_separator
+### Removing ACL 
+setfacl -b -R /usr/local/
+setfacl -b -R /etc/elasticsearch
+setfacl -b -R /home/logrhythm
+setfacl -b -R /srv
+tput setaf 1;echo "Removing ACL";tput sgr0
+
+line_separator
+### Turning swap off 
+touch /home/logrhythm/swapoff.sh
+echo "sudo swapoff -a" > /home/logrhythm/swapoff.sh
+chmod +x /home/logrhythm/swapoff.sh
+(crontab -l 2>/dev/null; echo "@reboot /home/logrhythm/swapoff.sh") | crontab -
+tput setaf 1;echo "Swap to OFF";tput sgr0
 
 ### logrhythm user ###
 tput setaf 2;echo "Checking logrhythm user account";tput sgr0;tput sgr0
@@ -147,5 +163,3 @@ yum-complete-transaction --cleanup-only
 systemctl restart systemd-journald.socket
 
 tput setaf 2;echo "Finished basic checks. Reboot the system";tput sgr0
-
-
