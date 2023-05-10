@@ -38,7 +38,7 @@ Stop-Service -DisplayName "LogRhythm Web Services Host API"
 
 ### Renaming existing indices
 Write-Output "Renaming existing indices" | red
-$renamedtime = (Get-Date).AddMinutes(-242).ToString("yyyy-MM-ddTHH:mm:00Z")
+$renamedtime = (Get-Date).AddMinutes(-242).ToString("yyyy-MM-ddTHH-mm-00Z")
 cd "C:\tmp\indices"
 Rename-Item .\1F4779BA-307E-4F65-9947-3AFA882EE06B .\1F4779BA-307E-4F65-9947-3AFA882EE06B_$renamedtime
 Rename-Item .\E3FFCBF1-7981-4916-A5AE-AAA4332D2CB5 .\E3FFCBF1-7981-4916-A5AE-AAA4332D2CB5_$renamedtime
