@@ -35,6 +35,7 @@ Stop-Service -DisplayName "LogRhythm Web Console API"
 Stop-Service -DisplayName "LogRhythm Web Console UI"
 Stop-Service -DisplayName "LogRhythm Web Indexer"
 Stop-Service -DisplayName "LogRhythm Web Services Host API"
+pause
 
 ### Renaming existing indices
 Write-Output "Renaming existing indices" | red
@@ -46,11 +47,13 @@ Rename-Item .\4585D33E-C058-4AFA-89CE-ED2BF4B7823D .\4585D33E-C058-4AFA-89CE-ED2
 Rename-Item .\689D0EF7-5F6A-412E-A47B-315472948C08 .\689D0EF7-5F6A-412E-A47B-315472948C08_$renamedtime #Case history
 Rename-Item .\0F2ABEC2-CC9F-4833-838D-7A177001A037 .\0F2ABEC2-CC9F-4833-838D-7A177001A037_$renamedtime #Report metadata
 Rename-Item .\990F503D-D5C5-46A8-BEE0-306165F67830 .\990F503D-D5C5-46A8-BEE0-306165F67830_$renamedtime #Global state index
+pause
 
 ### Deleting web indices database tables 
 Write-Output "Deleting web indices database tables"
 invoke-sqlcmd -query "DELETE FROM [LogRhythmEMDB].[dbo].[WebTask] WHERE [TaskID] IN ('1F4779BA-307E-4F65-9947-3AFA882EE06B','E3FFCBF1-7981-4916-A5AE-AAA4332D2CB5','4585D33E-C058-4AFA-89CE-ED2BF4B7823D','689D0EF7-5F6A-412E-A47B-315472948C08','0F2ABEC2-CC9F-4833-838D-7A177001A037','990F503D-D5C5-46A8-BEE0-306165F67830')" -database $DB -serverinstance $servername -username $username -password $pass
 invoke-sqlcmd -query "DELETE FROM [LogRhythmEMDB].[dbo].[WebTaskToUser] WHERE [WebTaskID] IN ('1F4779BA-307E-4F65-9947-3AFA882EE06B','E3FFCBF1-7981-4916-A5AE-AAA4332D2CB5','4585D33E-C058-4AFA-89CE-ED2BF4B7823D','689D0EF7-5F6A-412E-A47B-315472948C08','0F2ABEC2-CC9F-4833-838D-7A177001A037','990F503D-D5C5-46A8-BEE0-306165F67830')" -database $DB -serverinstance $servername -username $username -password $pass
+pause
 
 ### Starting LogRhythm web services
 Write-Output "Starting LogRhythm web services" | green
