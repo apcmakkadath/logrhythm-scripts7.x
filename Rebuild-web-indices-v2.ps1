@@ -84,7 +84,10 @@ $pass = $credential.GetNetworkCredential().password
 ### Stopping Logrhythm web seervices
 function stop-web-services {
 Write-Output "Stopping LogRhythm web services..." | magenta
-Stop-Service -DisplayName "LogRhythm*Web*"
+$startJob = Start-Job -ScriptBlock{
+    Stop-Service -DisplayName "LogRhythm*Web*" 
+}
+Wait-Job $startJob.Name
 pause
 }
 
@@ -122,9 +125,14 @@ pause
 ### Starting LogRhythm web services
 function start-web-services {
 Write-Output "Starting LogRhythm web services..." | green
-Start-Service -DisplayName "LogRhythm*Web*" 
+$startJob = Start-Job -ScriptBlock{
+    Start-Service -DisplayName "LogRhythm*Web*" 
+}
+Wait-Job $startJob.Name
+pause
 Write-Output "Web indices rebuild complete. Please wait for services to start.." | green
 Get-Service -DisplayName "LogRhythm*Web*" | select DisplayName,Status
+pause
 }
 
 ### Functions calling
