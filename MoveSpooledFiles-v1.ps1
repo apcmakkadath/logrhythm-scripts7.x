@@ -1,9 +1,8 @@
 <#
-.Description
-LogRhythm - Move files from one directory to another when the target directory is empty. Used to move spooled event or log files.
-Micah Shelton 11-18-2016
-This version uploaded to Confluence by Keelan Lang on 12-23-2021
-Credits to original author(s)
+Description
+LogRhythm - Move files from one directory to another when the target directory is empty. Used to move spooled/unprocessed logs.
+Credits to Micah Shelton, Keelan Lang
+Modified by Aravind C to enhance and gui
 #>
 #######################################
 
