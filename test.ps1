@@ -60,5 +60,9 @@ $FilePath = "C:\Users\apc\Documents\desk\scripts\test.ps1"
 $Branch = "main"  # Replace with the branch name you want to upload to
 $Token = "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"
 
+#Import-Module ActiveDirectory
+#(Get-ADUser -Filter 'LastLogon -gt "01/01/1970"' -ResultSetSize $null).Count
+
+
 
 Upload-FileToGitHub -Owner $Owner -Repo $Repo -FilePath $FilePath -Branch $Branch -Token $Token
