@@ -10,8 +10,18 @@ Import-Module ServerManager
 Add-WindowsFeature RSAT-AD-PowerShell
 
 ### File with Privileged user groups. GROUP NAMES !!!!!
-$priv_groups_file = "~\priv_groups_file.txt"
+$priv_groups_file = "priv_groups_file.txt"
 
+### File existence verification
+if (Test-Path "~\priv_groups_file.txt") {
+        import-ad-users 
+} else {
+    cd ~
+    New-Item -Name $priv_groups_file -ItemType File
+    [System.Windows.Forms.MessageBox]::Show("Enter AD group names to file priv_groups_file.txt in $env:USERPROFILE", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+}
+
+function import-ad-users {
 ### Read from AD groups 
 foreach($line in Get-Content $priv_groups_file) {
     Get-ADGroupMember -Identity $line | select saMAccountName | Format-Table -HideTableHeaders | Out-File ~\$line.txt 
@@ -25,3 +35,4 @@ $userlist.samaccountname | Foreach-object {$_ + "@domain.com"} | Out-File ~\priv
 
 ### Make sure to provide permission to the script running user to "C:\Program Files\LogRhythm"
 Move-Item ~\$line.txt "C:\Program Files\LogRhythm\LogRhythm Job Manager\config\list_import\$line.txt" -Force
+}
