@@ -1,4 +1,4 @@
-﻿<### Script written by Aravind importing the list of privileged users from AD groups 
+<### Script written by Aravind importing the list of privileged users from AD groups 
 !!!!! Pre requisite: The system running the script must be joined to the DOMAIN
 !!!!! The script is expecting a file named "priv_groups_file.txt" in home directory
 Applicable to version above 7.4.X to 7.10.x
@@ -14,7 +14,7 @@ $priv_groups_file = "~\priv_groups_file.txt"
 
 ### Read from AD groups 
 foreach($line in Get-Content $priv_groups_file) {
-    Get-ADGroupMember -Identity $line | select saMAccountName | Format-Table -HideTableHeaders | Out-File ~\priv_users.txt -Append
+    Get-ADGroupMember -Identity $line | select saMAccountName | Format-Table -HideTableHeaders | Out-File ~\$line.txt 
 }
 
 #### For Custom usernames
@@ -24,4 +24,4 @@ $userlist.samaccountname | Foreach-object {$_ + "@domain.com"} | Out-File ~\priv
 #>
 
 ### Make sure to provide permission to the script running user to "C:\Program Files\LogRhythm"
-Move-Item ~\priv_users.txt "C:\Program Files\LogRhythm\LogRhythm Job Manager\config\list_import\priv_users.txt" -Force
+Move-Item ~\$line.txt "C:\Program Files\LogRhythm\LogRhythm Job Manager\config\list_import\$line.txt" -Force
