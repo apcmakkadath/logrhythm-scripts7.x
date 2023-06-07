@@ -1,5 +1,6 @@
 <### Script written by Aravind importing the list of users from AD groups 
 !!!!! Pre requisite: The system running the script must be joined to the DOMAIN
+Use parameters for sceduling: -NoProfile -NoLogo -NonInteractive -ExecutionPolicy Bypass -File
 !!!!! The script is expecting a file named "priv_groups_file.txt" in home directory
 Applicable to version above 7.4.X to 7.10.x
 Send your feedbacks to apcmakkadath@gmail.com
