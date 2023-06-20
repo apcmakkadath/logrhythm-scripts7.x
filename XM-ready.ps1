@@ -50,16 +50,22 @@ ping $(Hostname)
 pause
 
 Write-Output "Disk drives" | green
-Get-PSDrive | findstr ":"
+$drives = Get-WmiObject Win32_LogicalDisk | Where-Object {$_.DriveType -eq 3 -and $_.FileSystem -ne $null}
+foreach ($drive in $drives) {
+    Write-Output "Drive: $($drive.DeviceID)"
+    Write-Output "Volume Name: $($drive.VolumeName)"
+    Write-Output "File System: $($drive.FileSystem)"
+    Write-Output "Total Size: $([math]::Round($drive.Size / 1GB, 2)) GB"
+    Write-Output "Free Space: $([math]::Round($drive.FreeSpace / 1GB, 2)) GB"
+    Write-Output "--------------------------"
+}
 pause
-Get-Volume
-pause
+
 FSUTIL.EXE 8dot3name set c: 1
 FSUTIL.EXE 8dot3name set d: 1 
 FSUTIL.EXE 8dot3name set l: 1 
 FSUTIL.EXE 8dot3name set t: 1 
 FSUTIL.EXE 8dot3name set s: 1 
- 
 pause
 
 write-output "IP Address(s)" | green
