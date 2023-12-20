@@ -34,7 +34,7 @@ $lstypeid = "" # This value must be hard coded for script scheduling purpose. Th
 #$logfile = "D:\LogRhythm\Scripts\output.log"  ### To be added in next version of script
 $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
 $headers.Add("Content-Type", "application/json")
-$headers.Add("Authorization", "Bearer ")
+$headers.Add("Authorization", "Bearer $api_token")
 
 #################################################
 ########## Add log sources to List ##############
