@@ -4,7 +4,20 @@ Tested successfully on version 7.14.X
 Send your feedbacks to apcmakkadath@gmail.com
 ####>
 
-cls
+#########################################
+########## Setting TLS ################## 
+add-type @"
+    using System.Net;
+    using System.Security.Cryptography.X509Certificates;
+    public class TrustAllCertsPolicy : ICertificatePolicy {
+        public bool CheckValidationResult(
+            ServicePoint srvPoint, X509Certificate certificate,
+            WebRequest request, int certificateProblem) {
+            return true;
+        }
+    }
+"@
+[System.Net.ServicePointManager]::CertificatePolicy = New-Object TrustAllCertsPolicy
 #########################################
 ########## Linebreak function ########### 
 function linebreak
