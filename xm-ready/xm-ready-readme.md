@@ -1,6 +1,6 @@
-## logrhythm-scripts7.x 
-## written by Aravind Chaliyadath
-readiness-checks for LogRhythm XM(7.x). 
-For Data indexer readiness. Use dx-ready.sh in the parent repo.
-Make sure to set the powershell execution policy to unrestricted for smooth execution :) 
-Send your feedbacks to apcmakkadath@gmail.com
+- ## logrhythm-scripts7.x 
+- written by Aravind Chaliyadath
+- readiness-checks for LogRhythm XM(7.x). 
+- For Data indexer readiness. Use dx-ready.sh in the parent repo.
+- Make sure to set the powershell execution policy to unrestricted for smooth execution :) 
+- Send your feedbacks to apcmakkadath@gmail.com
