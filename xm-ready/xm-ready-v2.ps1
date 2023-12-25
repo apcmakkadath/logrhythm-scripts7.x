@@ -74,6 +74,7 @@ pause
 
 write-output "Firewall status:" | green
 Get-NetFirewallProfile | findstr /r "^Name Enabled" | red
+New-NetFirewallRule -DisplayName "LogRhythm Data Processor 443" -Direction Inbound -Protocol TCP -LocalPort 443 -Action Allow -Profile @("Domain", "Private", "Public")
 write-output "Update windows"
 pause
 
