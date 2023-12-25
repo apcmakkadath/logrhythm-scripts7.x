@@ -1,5 +1,5 @@
 ﻿<### Script written by Aravind for Setting and reading values for system optimization
-Applicable to version above 7.4.X to 7.10.x
+Applicable to version above 7.x
 Send your feedbacks to apcmakkadath@gmail.com
 ####>
 
