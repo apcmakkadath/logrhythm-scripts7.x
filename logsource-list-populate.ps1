@@ -18,20 +18,21 @@ add-type @"
     }
 "@
 [System.Net.ServicePointManager]::CertificatePolicy = New-Object TrustAllCertsPolicy
+
 #########################################
-########## Linebreak function ########### 
-function linebreak
-{
-    Write-Output "---------------------------------------------------------------------"
-}
+########## Constants ########### 
+$logfile = "output.log"
+date >> $logfile
+$lstypeid = "" #  This value must be hard coded for script scheduling purpose. The Logsource Type ID can be retrieved from LogRhythm Console -> Tools -> Knowledge -> Log Source Type Manager #
+$list_guid = "" # This value must be hard coded for script scheduling purpose. List's GUID can be retrieved by running SQL query : SELECT * FROM LogRhythmEMDB.dbo.List WHERE  ListID = '<your-list-id>'
+$api_token = "" # Paste the LogRhythm API token value in the variable
+$pm = "localhost:8501"
+Write-Output "Log source type id: $lstypeid" >> $logfile
+Write-Output "List Guid: $list_guid" >> $logfile
+Write-Output "Api: $pm" >> $logfile
 
 #########################################
 ########## Get values required ########## 
-$pm = "localhost:8501"
-$list_guid = "" #This value must be hard coded for script scheduling purpose. List's GUID can be retrieved by running SQL query : SELECT * FROM LogRhythmEMDB.dbo.List WHERE  ListID = '<your-list-id>'
-$api_token = "" # Paste the LogRhythm API token value in the variable
-$lstypeid = "" # This value must be hard coded for script scheduling purpose. The Logsource Type ID can be retrieved from LogRhythm Console -> Tools -> Knowledge -> Log Source Type Manager #
-#$logfile = "D:\LogRhythm\Scripts\output.log"  ### To be added in next version of script
 $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
 $headers.Add("Content-Type", "application/json")
 $headers.Add("Authorization", "Bearer $api_token")
@@ -39,12 +40,13 @@ $headers.Add("Authorization", "Bearer $api_token")
 #################################################
 ########## Add log sources to List ##############
 function addtolist{
-$ls = Invoke-RestMethod "https://$pm/lr-admin-api/logsources/" -Method 'GET' -Headers $headers #-Body $body
-Write-Output "Added Log Source IDs"
-linebreak
+$ls = Invoke-RestMethod "https://$pm/lr-admin-api/logsources/" -Method 'GET' -Headers $headers 
+Write-Output "Attempting to Add Log Sources to List" >> $logfile
 $ls | ForEach-Object {
 if($_.logsourcetype.id -eq "$lstypeid"){
-Write-Output $_.id
+Write-Output $_.name
+Write-Output $_.name >> $logfile
+
 $id = $_.id
 $body = @"
 {
@@ -62,10 +64,10 @@ $body = @"
               ]
 }
 "@
-Invoke-RestMethod "https://$pm/lr-admin-api/lists/$list_guid/items" -Method 'POST' -Headers $headers -Body $body
-linebreak
+$result = Invoke-RestMethod "https://$pm/lr-admin-api/lists/$list_guid/items" -Method 'POST' -Headers $headers -Body $body
 }
 }
+
 }
 
 ###############################################
@@ -73,14 +75,14 @@ linebreak
 if (Test-Path "C:\Program Files\LogRhythm\LogRhythm Alarming and Response Manager\config\scarm.ini")
 {
     if ($list_guid -eq "" -or $lstypeid -eq "" -or $api_token -eq ""){
-        Write-Output "Check the value for List GUID OR LogSourceTypeID OR API Token"
+        Write-Output "Check the value for List GUID OR LogSourceTypeID OR API Token" >> $logfile
         } else {
-                Write-Output "Pre checks passed"
+                Write-Output "Pre checks passed" >> $logfile
                 addtolist
                }
 } 
 else 
 {
-Write-Output "Run this script from Platform Manager"
+Write-Output "Run this script from Platform Manager" >> $logfile
 }
 
