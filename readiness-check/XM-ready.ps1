@@ -3,6 +3,40 @@ Applicable to version above 7.4.X to 7.10.x
 Send your feedbacks to apcmakkadath@gmail.com
 ####>
 
+### Run script as Admin
+Function Check-RunAsAdministrator()
+{
+  #Get current user context
+  $CurrentUser = New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())
+  
+  #Check user is running the script is member of Administrator Group
+  if($CurrentUser.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator))
+  {
+       Write-host "Script is running with Administrator privileges!"
+  }
+  else
+    {
+       #Create a new Elevated process to Start PowerShell
+       $ElevatedProcess = New-Object System.Diagnostics.ProcessStartInfo "PowerShell";
+ 
+       # Specify the current script path and name as a parameter
+       $ElevatedProcess.Arguments = "& '" + $script:MyInvocation.MyCommand.Path + "'"
+ 
+       #Set the Process to elevated
+       $ElevatedProcess.Verb = "runas"
+ 
+       #Start the new elevated process
+       [System.Diagnostics.Process]::Start($ElevatedProcess)
+ 
+       #Exit from the current, unelevated, process
+       Exit
+ 
+    }
+}
+ 
+#Check Script is running with Elevated Privileges
+Check-RunAsAdministrator
+
 ### function color
 function green
 {
@@ -13,7 +47,6 @@ function red
 {
     process { Write-Host $_ -ForegroundColor Red }
 }
-
 
 ### Setting OR reading values for system optimization
 set-executionpolicy -scope LocalMachine unrestricted -Force
