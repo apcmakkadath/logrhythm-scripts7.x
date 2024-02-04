@@ -72,7 +72,15 @@ $result = Invoke-RestMethod "https://$pm/lr-admin-api/lists/$list_guid/items" -M
 
 ###############################################
 ########## Check pre-requisistes ##############
-if (Test-Path "C:\Program Files\LogRhythm\LogRhythm Alarming and Response Manager\config\scarm.ini")
+$filePaths = @("C:\Program Files\LogRhythm\LogRhythm Alarming and Response Manager\config\scarm.ini”, “D:\Program Files\LogRhythm\LogRhythm Alarming and Response Manager\config\scarm.ini”, “S:\Program Files\LogRhythm\LogRhythm Alarming and Response Manager\config\scarm.ini", "D:\LogRhythmHA\LogRhythm Alarming and Response Manager\config\scarm.ini")
+foreach ($filePath in $filePaths) {
+    if (Test-Path -Path $filePath -PathType Leaf) {
+        Write-Host "$filePath exists."
+    } else {
+        Write-Host "$filePath does not exist."
+    }
+}
+if ($filePaths -ne $null)
 {
     if ($list_guid -eq "" -or $lstypeid -eq "" -or $api_token -eq ""){
         Write-Output "Check the value for List GUID OR LogSourceTypeID OR API Token" >> $logfile
@@ -83,6 +91,6 @@ if (Test-Path "C:\Program Files\LogRhythm\LogRhythm Alarming and Response Manage
 } 
 else 
 {
-Write-Output "Run this script from Platform Manager" >> $logfile
+Write-Output "scarm.ini NOT Found. Terminating" >> $logfile
 }
 
