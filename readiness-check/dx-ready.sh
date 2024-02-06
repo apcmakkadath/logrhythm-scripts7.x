@@ -1,7 +1,7 @@
 : '
 Script written by Aravind for reading, highlighting and setting values for optimized LogRhythm DataIndexer
 !!!!! Version check has not been done for this script other than 7.8,7.9,7.10
-!!!!! Works for CentOS 7, 8, RHEL 7,8
+!!!!! Works for CentOS 7, 8, RHEL 7,8, Rocky 9, RHEL 9
 Send your feedbacks to apcmakkadath@gmail.com
 '
 
@@ -38,6 +38,7 @@ line_separator
 
 tput setaf 1;echo "Finding NICs configured with DHCP";tput sgr0
 find /etc/sysconfig/network-scripts/ifcfg-* -exec grep -ilR dhcp '{}'  \;
+find /etc/NetworkManager/system-connections/ -type f -exec grep -ilR method=auto '{}'  \;
 line_separator
 
 tput setaf 2;echo "host file entries";tput sgr0
@@ -94,6 +95,10 @@ sed 's/\=enforcing/\=permissive/g' /etc/sysconfig/selinux
 sestatus 
 
 line_separator
+tput setaf 1;echo "Check mount is read write";tput sgr0
+mount | grep /usr/local
+
+line_separator
 ### Removing ACL 
 setfacl -b -R /usr/local/
 setfacl -b -R /etc/elasticsearch
@@ -127,6 +132,15 @@ line_separator
 tput setaf 2;echo "Checking ansible compatibility";tput sgr0
 cat /etc/sudoers | grep PermitRootLogin --color=auto
 line_separator
+tput setaf 2;echo "Adding command aliases";tput sgr0;tput sgr0
+### for user root
+echo "alias chs='curl localhost:9200/_cluster/health?pretty'" >> /root/.bashrc
+echo "alias cns='curl localhost:9200/_cat/nodes?v'" >> /root/.bashrc
+### for user logrhythm
+echo "alias chs='curl localhost:9200/_cluster/health?pretty'" >> /home/logrhythm/.bashrc
+echo "alias cns='curl localhost:9200/_cat/nodes?v'" >> /home/logrhythm/.bashrc
+source ~/.bashrc
+line_separator
 
 ### Package installation ###
 tput setaf 6;echo "Trying to install essential packages";tput sgr0
@@ -134,17 +148,15 @@ tput setaf 6;echo "Trying to install essential packages";tput sgr0
 tput setaf 2;echo "checking firewalld";tput sgr0
 yum -y install firewalld
 rpm -qa firewalld
-line_separator
 
 tput setaf 2;echo "checking openssh";tput sgr0
 yum -y install openssh
 rpm -qa openssh
-line_separator
 
 tput setaf 2;echo "checking nc";tput sgr0
 yum -y install nc
 rpm -qa nc
-line_separator
+
 
 tput setaf 2;echo "checking chrony";tput sgr0
 yum -y install chrony
@@ -153,27 +165,30 @@ rpm -qa chrony
 tput setaf 2;echo "checking yum-utils";tput sgr0
 yum -y install yum-utils
 rpm -qa yum-utils 
-line_separator
+
 
 tput setaf 2;echo "checking sshpass";tput sgr0
 yum -y install sshpass
 rpm -qa sshpass
-line_separator
 
 tput setaf 2;echo "checking unzip";tput sgr0
 yum -y install unzip
-rpm -qa telnet
-line_separator
+rpm -qa unzip
+
 
 tput setaf 2;echo "checking systat";tput sgr0
 yum -y install sysstat
-rpm -qa telnet
-line_separator
+rpm -qa systat
+
 
 tput setaf 2;echo "checking telnet";tput sgr0
 yum -y install telnet
 rpm -qa telnet
 yum-complete-transaction --cleanup-only
 systemctl restart systemd-journald.socket
+
+### Disable repo manually for DX installation
+tput setaf 1; echo "Edit to enabled=0 on Base Repo & rocky.repo in /etc/yum.repos.d/";tput sgr0
+find /etc/yum.repos.d/ -type f -exec  grep -ilR enabled=1 '{}' \;
 
 tput setaf 2;echo "Finished basic checks. Reboot the system";tput sgr0
