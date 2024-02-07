@@ -4,8 +4,7 @@ Send your feedbacks to apcmakkadath@gmail.com
 ####>
 
 ### Run script as Admin
-Function Check-RunAsAdministrator()
-{
+Function Check-RunAsAdministrator {
   #Get current user context
   $CurrentUser = New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())
   
@@ -183,5 +182,4 @@ ipconfig /registerdns
 #netsh winsock reset #Possibly Resets the NIC card and IP settings
 #netsh int ip reset #Possibly Resets the NIC card and IP settings
 
-CLS
 Write-Output "Reboot the System" | red
