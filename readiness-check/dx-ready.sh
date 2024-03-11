@@ -1,6 +1,5 @@
 : '
 Script written by Aravind for reading, highlighting and setting values for optimized LogRhythm DataIndexer
-!!!!! Version check has not been done for this script other than 7.8,7.9,7.10
 !!!!! Works for CentOS 7, 8, RHEL 7,8, Rocky 9, RHEL 9
 Send your feedbacks to apcmakkadath@gmail.com
 '
@@ -10,9 +9,9 @@ Send your feedbacks to apcmakkadath@gmail.com
 
 line_separator () {
 echo --------------------
-read -p "Continue..."
+#read -p "Continue..."
 echo " "
-clear
+#clear
 }
 
 clear
@@ -105,6 +104,8 @@ setfacl -b -R /etc/elasticsearch
 setfacl -b -R /home/logrhythm
 setfacl -b -R /srv
 tput setaf 1;echo "Removing ACL";tput sgr0
+chown -R logrhythm:logrhythm /home/logrhythm
+chown -R logrhythm:logrhythm /usr/local/logrhythm
 
 line_separator
 ### Turning swap off 
@@ -146,43 +147,44 @@ line_separator
 tput setaf 6;echo "Trying to install essential packages";tput sgr0
 
 tput setaf 2;echo "checking firewalld";tput sgr0
-yum -y install firewalld
+#yum -y install firewalld
 rpm -qa firewalld
 
 tput setaf 2;echo "checking openssh";tput sgr0
-yum -y install openssh
+#yum -y install openssh
 rpm -qa openssh
 
+tput setaf 2;echo "checking tar";tput srg0
+rpm -qa tar
+
 tput setaf 2;echo "checking nc";tput sgr0
-yum -y install nc
+#yum -y install nc
 rpm -qa nc
 
-
 tput setaf 2;echo "checking chrony";tput sgr0
-yum -y install chrony
+#yum -y install chrony
 rpm -qa chrony
 
 tput setaf 2;echo "checking yum-utils";tput sgr0
-yum -y install yum-utils
+#yum -y install yum-utils
 rpm -qa yum-utils 
 
 
 tput setaf 2;echo "checking sshpass";tput sgr0
-yum -y install sshpass
+#yum -y install sshpass
 rpm -qa sshpass
 
 tput setaf 2;echo "checking unzip";tput sgr0
-yum -y install unzip
+#yum -y install unzip
 rpm -qa unzip
 
-
 tput setaf 2;echo "checking systat";tput sgr0
-yum -y install sysstat
+#yum -y install sysstat
 rpm -qa systat
 
 
 tput setaf 2;echo "checking telnet";tput sgr0
-yum -y install telnet
+#yum -y install telnet
 rpm -qa telnet
 yum-complete-transaction --cleanup-only
 systemctl restart systemd-journald.socket
@@ -190,5 +192,7 @@ systemctl restart systemd-journald.socket
 ### Disable repo manually for DX installation
 tput setaf 1; echo "Edit to enabled=0 on Base Repo & rocky.repo in /etc/yum.repos.d/";tput sgr0
 find /etc/yum.repos.d/ -type f -exec  grep -ilR enabled=1 '{}' \;
+find /etc/yum.repos.d/ -type f -exec sed -i 's/enabled\=1/enabled\=0/g' '{}' \;
+systemctl daemon-reload
 
 tput setaf 2;echo "Finished basic checks. Reboot the system";tput sgr0
