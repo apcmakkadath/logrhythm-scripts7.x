@@ -1,3 +1,4 @@
+This code will help to auto populate the list of a specific log source type
 !!!!!!!!!!!! IMPORTANT 
 1. Make Sure you have updated LogSourceType ID in the script
 2. Make Sure you have created a List and captured its LIst ID
