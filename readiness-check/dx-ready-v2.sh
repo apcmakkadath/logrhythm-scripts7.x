@@ -90,7 +90,8 @@ umask
 line_separator
 tput setaf 1;echo "SE status";tput sgr0
 ### editing /etc/sysconfig/selinux ###
-sed 's/\=enforcing/\=permissive/g' /etc/sysconfig/selinux
+sed -i 's/\=enforcing/\=disabled/g' /etc/sysconfig/selinux
+sed -i 's/\=permissive/\=disabled/g' /etc/sysconfig/selinux
 sestatus 
 
 line_separator
@@ -104,8 +105,6 @@ setfacl -b -R /etc/elasticsearch
 setfacl -b -R /home/logrhythm
 setfacl -b -R /srv
 tput setaf 1;echo "Removing ACL";tput sgr0
-chown -R logrhythm:logrhythm /home/logrhythm
-chown -R logrhythm:logrhythm /usr/local/logrhythm
 
 line_separator
 ### Turning swap off 
@@ -116,7 +115,6 @@ echo "sudo sync; echo 3 > /proc/sys/vm/drop_caches" > /home/logrhythm/drop_cache
 chmod +x /home/logrhythm/swapoff.sh
 chmod +x /home/logrhythm/drop_caches.sh
 echo "chown -R logrhythm:logrhythm /home/logrhythm" >> /home/logrhythm/set-perms.sh
-echo "chown -R logrhythm:logrhythm /usr/local/logrhythm" >> /home/logrhythm/set-perms.sh
 (crontab -l 2>/dev/null; echo "@reboot /home/logrhythm/swapoff.sh") | crontab -
 tput setaf 1;echo "Swap to OFF";tput sgr0
 
@@ -194,5 +192,7 @@ tput setaf 1; echo "Edit to enabled=0 on Base Repo & rocky.repo in /etc/yum.repo
 find /etc/yum.repos.d/ -type f -exec  grep -ilR enabled=1 '{}' \;
 find /etc/yum.repos.d/ -type f -exec sed -i 's/enabled\=1/enabled\=0/g' '{}' \;
 systemctl daemon-reload
+chown -R logrhythm:logrhythm /home/logrhythm
+
 
 tput setaf 2;echo "Finished basic checks. Reboot the system";tput sgr0
