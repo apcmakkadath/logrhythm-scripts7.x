@@ -188,9 +188,8 @@ yum-complete-transaction --cleanup-only
 systemctl restart systemd-journald.socket
 
 ### Disable repo manually for DX installation
-tput setaf 1; echo "Edit to enabled=0 on Base Repo & rocky.repo in /etc/yum.repos.d/";tput sgr0
-find /etc/yum.repos.d/ -type f -exec  grep -ilR enabled=1 '{}' \;
-find /etc/yum.repos.d/ -type f -exec sed -i 's/enabled\=1/enabled\=0/g' '{}' \;
+tput setaf 1; echo "Repo status in /etc/yum.repos.d/";tput sgr0
+ls -lrth /etc/yum.repos.d/ 
 systemctl daemon-reload
 chown -R logrhythm:logrhythm /home/logrhythm
 
