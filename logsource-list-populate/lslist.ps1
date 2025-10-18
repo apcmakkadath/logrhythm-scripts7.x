@@ -26,7 +26,7 @@ add-type @"
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls10 -bor [Net.SecurityProtocolType]::Tls11 -bor [Net.SecurityProtocolType]::Tls12
 
 # constants
-$Global:api_token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOi0xMDAsImp0aSI6IjZhNWY3OTI3LWZjNDctNDk3My04YTNlLTUyOTJjZmYzZmNmZiIsImNpZCI6IkRCRkQ3MjUxLTlFN0YtNEU0OC05MzZFLUUwNjQwRjk0MDI2NSIsImlzcyI6ImxyLWF1dGgiLCJyaWQiOiJnbG9iYWxBZG1pbiIsInBpZCI6LTEwMCwic3ViIjoiTG9nUmh5dGhtQWRtaW4iLCJleHAiOjE3NzE1ODQzMzQsImRlaWQiOjEsImlhdCI6MTc0MDA0ODMzNH0.Q7nPkd_Ur_8heMpmqFgqrTLlHo8kGesxpZCGKszyWZA0UqyALko5zTIPcANbU5qItRctmMTBny92VnEg8bSgxGCi2dr2YuojLt8T71ByZQ0cln2kCuFsB3zoCon-2MvhcleAHybCl1Ea9jBUSY8pgOkttw4qcfuTv5ko8h-iFjFifjeHkeL5PgPN4EznaEjowI2yamnj_77gfnKJHttYzPC_2fsab1BAaf3efK-X34LS84kU0IdoU6Onyr06dQicGig4O34Yijc97vRXEQX5AlKwn0onMvYHIa-o8nYayxE7l6I9Yoo0Yg8o9MkaQdyIFkFrSxSpIJSJP4qtycXJBg" # Paste the LogRhythm API token value in the variable
+$Global:api_token = "" # Paste the LogRhythm API token value in the variable
 $Global:pm = "localhost:8501"
 $Global:sapwd = "logrhythm!1"
 $list_path = "C:\LogRhythm\LogSourcesList\list.csv" # path to csv list file
