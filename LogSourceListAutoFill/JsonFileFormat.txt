@@ -1,0 +1,27 @@
+You would need 2 Json files
+Sample json file structure given below
+
+IDPair.json
+[
+  {
+    "LogSourceTypeID": 500168,
+    "ListID": 2001
+  },
+  {
+    "LogSourceTypeID": 500169,
+    "ListID": 2002
+  },
+  {
+    "LogSourceTypeID": 500170,
+    "ListID": 2003
+  }
+]
+
+
+Pass.json
+{
+	"Token": "eyJhbGci.....",
+	"SaPwd": "p@ssw0rd:-)"
+}
+"
+}
