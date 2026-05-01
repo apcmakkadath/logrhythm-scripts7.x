@@ -1,7 +1,7 @@
 # Script Creating task scheduler job 
 function createTaskJob{
 $scriptpath = ""
-$taskname = "LogSourceList_Creation"
+$taskname = "LogSourceList_AutoFill"
 
 $action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-NoProfile -File `"$scriptpath`""
 $trigger = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Minutes 10) -RepetitionDuration (New-TimeSpan -Days 1000)
