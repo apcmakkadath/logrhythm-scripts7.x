@@ -1,16 +1,9 @@
-<### Script written by Aravind for adding log sources to a list of selected sourcetype
-Applicable to version above 7.X
-Tested successfully on version 7.19.X
-Send your feedbacks to apcmakkadath@gmail.com
-
-Sample list.csv 
-ListID,LogSourceTypeID
-2001,1000669
-2002,1000548
-
-####>
-
-# set tls
+[cmdletBinding()]
+param(
+[Parameter(Mandatory=$true)][String]$IDPairFile,
+[Parameter(Mandatory=$true)][String]$TokenFile
+)
+Clear-Host
 add-type @"
     using System.Net;
     using System.Security.Cryptography.X509Certificates;
@@ -23,54 +16,84 @@ add-type @"
     }
 "@
 [System.Net.ServicePointManager]::CertificatePolicy = New-Object TrustAllCertsPolicy
-[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls10 -bor [Net.SecurityProtocolType]::Tls11 -bor [Net.SecurityProtocolType]::Tls12
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12;
 
-# constants
-$Global:api_token = "" # Paste the LogRhythm API token value in the variable
-$Global:pm = "localhost:8501"
-$Global:sapwd = "logrhythm!1"
-$list_path = "C:\LogRhythm\LogSourcesList\list.csv" # path to csv list file
-$db = "LogRhythmEMDB"
-$instance = $env:COMPUTERNAME
-$user = "sa"
-
-function checksapwd{
-try {
- 
-    Invoke-Sqlcmd -ServerInstance $instance -Username $user -Password $sapwd -Query "SELECT GETDATE()" -ErrorAction Stop
-    Write-Output "SQL Login Successful`nProceeding..."
-    addtolist
+# Sample Json
+function ShowJsonformat{
+write-host " --- Example Json ID Pair format ---
+[
+  {
+    "LogSourceTypeID": 500168,
+    "ListID": 2001
+  },
+  {
+    "LogSourceTypeID": 500169,
+    "ListID": 2002
+  },
+  {
+    "LogSourceTypeID": 500170,
+    "ListID": 2003
+  }
+]
+--- Example Json Token File format ---
+{
+	"Token": "eyJhbGci.....",
+	"SaPwd": "logrhythm!1"
 }
-catch {
-    Write-Output "SQL Login Failed: $($_.Exception.Message)"
-}
+"
 }
 
-########## Update list ########## 
-function addtolist{
-$headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
-$headers.Add("Content-Type", "application/json")
-$headers.Add("Authorization", "Bearer $api_token")
+function ReadIDPair{
 
-########## Add log sources to List ##############
-Write-Host "Attempting to Add Log Sources to List"
-$list = Import-Csv -Path $list_path
+$JsonIDPair = Get-Content $IDPairFile 
+$IDPair = $JsonIDPair | ConvertFrom-Json 
+Write-Host "$($IDPair.Count) Pairs found "
+foreach ($Pair in $IDPair){
+if($($Pair.ListID) -is [int]){Write-Host "$($Pair.ListID) is valid"}else{Write-Host "Invalid ListID: $($Pair.ListID)"; ShowJsonformat; exit}
+if($($Pair.LogSourceTypeID) -is [int]){Write-Host "$($Pair.LogSourceTypeID) is valid"}else{Write-Host "Invalid LogSourceTypeID: $($Pair.LogSourceTypeID)"; ShowJsonformat; exit}
+}
 
-foreach($row in $list){
-$listid = $row.ListID
-$lstypeid = $row.LogSourceTypeID
-Write-Host "Fetching GUID for ListID $listid"
-$listguid = invoke-sqlcmd -query "select * from LogRhythmEMDB.dbo.List where ListID = '$listid'" -database $db -serverinstance $instance -username $user -password $sapwd
-$list_guid = $listguid.guid.Guid
-$msgsourceid = invoke-sqlcmd -query "select * from LogRhythmEMDB.dbo.MsgSource where MsgSourceTypeID = '$lstypeid'" -database $db -serverinstance $instance -username $user -password $sapwd
-Write-Host "Fetching Log sources for LogSourceTypeID $lstypeid"
-$msgsourceid | ForEach-Object {
-if($_.MsgSourceTypeId -eq "$lstypeid"){
+if((Get-Content -Path $TokenFile).Length -gt 0){
+Write-Host "Valid Token File Found."
+$Pass = (Get-Content -Path $TokenFile) | ConvertFrom-Json
+$Token = $Pass.Token
+$Sapwd = $Pass.SaPwd
+if($Token.length -gt 0 -and $Sapwd.length -gt 0){
+Write-Host "Retrieved LogRhythm Token and credentials"
+}else{
+Write-Host "invalid Token File Contents"
+ShowJsonformat
+}
+}else{
+Write-Host "Invalid Token File."
+exit
+}
 
-Write-Host $_.name
+GetLogSourceTypeID
+}
 
-$id = $_.MsgSourceId
+function GetLogSourceTypeID{
+try{
+$LSTHeaders = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
+$LSTHeaders.Add("accept", "application/json")
+$LSTHeaders.Add("Authorization", "Bearer $Token")
+foreach ($Pair in $IDPair){
+$LSTUrl1 = "https://localhost:8501/lr-admin-api/logsources/"
+$LSTUrl2 = "?offset=0&count=1000&messageSourceTypeId=$($Pair.LogSourceTypeID)&recordStatus=all"
+$LSTUrl = $LSTUrl1 + $LSTUrl2
+$LSTID = Invoke-RestMethod -Uri $LSTUrl -Headers $LSTHeaders -Method Get 
+Write-Host "--- LogSources for LogSourceType ID: $($Pair.LogSourceTypeID). List ID: $($Pair.ListID)--- " -ForegroundColor DarkGreen
+foreach ($LS in $LSTID){
 
+
+$ListHeaders = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
+$ListHeaders.Add("accept", "application/json")
+$ListHeaders.Add("loadListItems", "true")
+$ListHeaders.Add("content-type", "application/json")
+$ListHeaders.Add("Authorization", "Bearer $Token")
+$ListGUID = Invoke-Sqlcmd -Query "Select ListID, GUID from LogRhythmEMDB.dbo.List where ListID = $($Pair.ListID)"
+$Guid = $ListGUID.GUID
+$id = $($LS.id)
 $body = @"
 {
     `"items`":  [
@@ -86,49 +109,16 @@ $body = @"
               ]
 }
 "@
-$result = Invoke-RestMethod "https://$pm/lr-admin-api/lists/$list_guid/items" -Method 'POST' -Headers $headers -Body $body
+Write-Host "$id : $($LS.Name) to List with GUID $Guid" -ForegroundColor Cyan
+$ListAPICall = Invoke-RestMethod -Uri "https://localhost:8501/lr-admin-api/lists/$Guid/items" -Method POST -Headers $ListHeaders -Body $body
 
 }
-}
 
 }
+}catch{
+Write-Host "Could not read Log Sources!"
+}
 }
 
-########## Check requirements ##############
-function ispm{
-$isjmp=Get-Service -name lrjobmgr
-if($isjmp -ne $null)
-    {
-    Write-Host "Running from Platform Manager.`nProceeding..."
-    isvaluesok
-    }
-else
-    {
-    Write-Host "Job Manager service not found. You should run the script from Platform Manager"
-    }
-}
-
-function checklist{
-if (-Not (Test-Path $list_path))
-    {
-    Write-Host "Couldn't find a csv at $list_path OR list_path variable NULL.`nQuitting."
-    }else
-    {
-    Write-Host "Found list.csv. Proceeding to add to list..."
-    addtolist
-    }
-}
-
-function isvaluesok{
-if($Global:api_token -eq '' -or $Global:sapwd -eq '' -or $list_path -eq '')
-    {
-    Write-Host "Values missing`nCheck LR API token/sa credentials/List path`nUnable to proceed`nQuitting..."
-    }
-    else
-    {
-    Write-Host "Required values found.`nProceeding..."
-    checklist
-    }
-}
 # Main
-ispm
+ReadIDPair -IDPairFile $IDPairFile -TokenFile $TokenFile
