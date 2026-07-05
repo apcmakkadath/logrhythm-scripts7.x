@@ -1,7 +1,7 @@
 <### Script written by Aravind for rebuilding LogRhythm web indices 
 Applicable to version above 7.4.X to 7.12
-Tested against LR 7.12 version 
-Added Error handling
+Tested successfully on version 7.12
+Added error handling
 Send your feedbacks to apcmakkadath@gmail.com
 ####>
 
@@ -74,7 +74,7 @@ pause
 ### SQL paramters variable declaration
 function get-sql-cred {
 Write-Output "Enter sa credentials" | magenta
-$serverName = $env:computername
+$serverName = Read-host "Platform Manager IP"#$env:computername
 $DB = "LogRhythmEMDB" 
 $credential = Get-Credential 
 $userName = $credential.UserName.Replace("\","")  
@@ -84,10 +84,7 @@ $pass = $credential.GetNetworkCredential().password
 ### Stopping Logrhythm web seervices
 function stop-web-services {
 Write-Output "Stopping LogRhythm web services..." | magenta
-$startJob = Start-Job -ScriptBlock{
-    Stop-Service -DisplayName "LogRhythm*Web*" 
-}
-Wait-Job $startJob.Name
+Stop-Service -DisplayName "LogRhythm*Web*"
 pause
 }
 
@@ -125,14 +122,9 @@ pause
 ### Starting LogRhythm web services
 function start-web-services {
 Write-Output "Starting LogRhythm web services..." | green
-$startJob = Start-Job -ScriptBlock{
-    Start-Service -DisplayName "LogRhythm*Web*" 
-}
-Wait-Job $startJob.Name
-pause
+Start-Service -DisplayName "LogRhythm*Web*" 
 Write-Output "Web indices rebuild complete. Please wait for services to start.." | green
 Get-Service -DisplayName "LogRhythm*Web*" | select DisplayName,Status
-pause
 }
 
 ### Functions calling
