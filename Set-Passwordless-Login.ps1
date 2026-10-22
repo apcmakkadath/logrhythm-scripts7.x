@@ -1,24 +1,19 @@
-# SSH 'passwordless login' creating script
-Clear-Host 
-# Get inputs
-$Linux = Read-Host "Linux server IP/Hostname"
-if($Linux.Length -eq 0) {$Linux = "192.168.122.101"} 
-$Username = Read-Host "Linux username"
-if($Username.Length -eq 0){$Username = "logrhythm"}
-Write-Host "Using Linux Server $Linux and User $Username"
-pause
+Clear-Host
+$keyPath = "$env:USERPROFILE\.ssh\id_ed25519.pub"
+if (-not (Test-Path $keyPath)) {
+    Write-Host "Creating SSH keypair..." -ForegroundColor Cyan
+    Start-Process powershell -ArgumentList "-NoExit", "-Command", "ssh-keygen -t ed25519"
+} else {
+    Write-Host "Existing SSH public key found at: $keyPath..." -ForegroundColor Green
+}
 
-# Make ssh key pairs
-Write-Host "Looking for ssh public keys..."
-Get-ChildItem -Path "~\.ssh"
-pause
-Write-Host "Removing existing ssh public keys if any..."
-Remove-Item "~\.ssh\*" -Force
-Write-Host "Trying to create ssh key pair`nProceed with defaults and empty passworrd"
-Start-Process ssh-keygen.exe #1. CREATE KEY PAIR
+$targetserver = Read-Host "Enter Target Server (Hostname or IP)"
+$targetuser = Read-Host "Enter Target Server User"
+Write-Host "Execute the below in powershell..." -ForegroundColor Cyan
+Write-Host @"
 
-# Copy ssh public key to Linux
-Write-Host "Copying ssh public key to Linux server..."
-$Remote = $Username + "@" + $Linux
-#$RemotePath
-type $env:USERPROFILE\.ssh\id_rsa.pub | ssh $Remote "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys" #2. COPY PUBLIC KEY TO LINUX SERVER
+Get-Content "$env:USERPROFILE\.ssh\id_ed25519.pub" | ssh $targetuser@$targetserver "mkdir -p ~/.ssh && chmod 700 ~/.ssh && cat >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys"
+
+"@
+
+Write-Host "$([char]0x26A0) Mind the line breaks while copying..." -ForegroundColor Yellow
