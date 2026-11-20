@@ -65,7 +65,7 @@ Write-Host $Banner -f Cyan
 
 Function GetDates{
 
-Write-Host "Archives date to move older than?" -f Yellow 
+Write-Host "Archives date older than?" -f Yellow 
 Write-Host "Enter in format yyyyMM, yyyyMMdd ONLY" -f DarkGray
 
 
@@ -91,7 +91,24 @@ $DateToMove = $number
 Write-Host "Finding archives starting with $DateToMove" -f DarkGray
 $DirToMove = Get-ChildItem -Directory -Path $SrcDir -Depth 2 -Filter $DateToMove*
 $DirCount = $DirToMove.Name.count
-MoveArchives
+
+$ShowOptions = @"
+
+Press M to Move, D to Delete, Q to Quit/Exit
+"[M]Move [D]Delete [Q]Quit "
+
+"@
+Write-Host $ShowOptions -ForegroundColor Cyan
+$Action = Read-Host 
+
+switch ($Action) {
+    "M"   { MoveArchives }
+    "D"   { DeleteArchives }
+    "Q" { Write-Host "Terminating" ; Exit }
+    default  { Write-Host "Invalid Input" }
+}
+
+
 }
 
 Function MoveArchives{
@@ -103,7 +120,7 @@ if($Proceed -eq "y"){
     foreach ($ArchiveDir in $DirToMove){
         
         Write-Host "Moving $($ArchiveDir.Name) to $DestDir" -f DarkGray
-        Move-Item $ArchiveDir.FullName -Destination $DestDir -Force -ErrorAction Continue #RoboCopy to be replaced after testing
+        robocopy "$($ArchiveDir.FullName)" "$DestDir\$($ArchiveDir.Name)" /E /MOVE /R:0 /W:0 
         Start-Sleep -Milliseconds 100
         
         }
@@ -112,6 +129,38 @@ if($Proceed -eq "y"){
     $DirsMovedCount = $DirsMoved.Count 
     Write-Host "$DirsMovedCount files verified in $DestDir" -f Cyan
     $Repeat = Read-Host "Move again(y/n)"
+    if($Repeat -eq "y"){
+        GetDates
+        }else{
+        Pause
+        }
+    }else{
+    Write-Host "Interrupted by user" -f Yellow
+    Exit
+    }
+
+}
+
+Function DeleteArchives{
+
+Write-Host "$DirCount archives found"
+$Proceed = Read-Host "Proceed with deleting archives(y/n)"
+if($Proceed -eq "y"){
+    Write-Host "Attempting to delete archives" -f Red
+    foreach ($ArchiveDir in $DirToMove){
+        
+        Write-Host "Deleting $($ArchiveDir.Name) " -f DarkGray
+        Remove-Item -Path $ArchiveDir.FullName -Recurse -Force -ErrorAction Continue
+        Start-Sleep -Milliseconds 100
+        
+        }
+    Write-Host "Verifying Delete Activity" -f DarkYellow
+    $DirsDeleted = Get-ChildItem -Directory -Path $SrcDir -Depth 2 -Filter $DateToMove*
+    $DirsDeletedCount = $DirsDeleted.Count 
+    
+    Write-Host "In $SrcDir`n$DirCount directories present earlier; $DirsDeletedCount directories present now" -f Cyan
+        
+    $Repeat = Read-Host "Delete again(y/n)"
     if($Repeat -eq "y"){
         GetDates
         }else{
@@ -136,4 +185,4 @@ ShowBanner
 
 GetDates
 
-#endregion
+#endregion Remove-Item -Path $ArchiveDir.FullName -Recurse -Force -ErrorAction Continue
