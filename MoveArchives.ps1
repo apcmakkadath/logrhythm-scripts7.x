@@ -94,9 +94,10 @@ $DirCount = $DirToMove.Name.count
 
 $ShowOptions = @"
 
+#############################################
 Press M to Move, D to Delete, Q to Quit/Exit
-"[M]Move [D]Delete [Q]Quit "
-
+[M]Move [D]Delete [Q]Quit
+#############################################
 "@
 Write-Host $ShowOptions -ForegroundColor Cyan
 $Action = Read-Host 
