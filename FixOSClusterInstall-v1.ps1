@@ -139,10 +139,6 @@ function Select-DXCluster {
 
 function Start-DXConfigurator {
 
-    # ----------------------------------------
-    # 1. SQL authentication - only once
-    # ----------------------------------------
-
     $SAPassword = Read-Host "Enter SQL SA Password" -AsSecureString
     $BSTR = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($SAPassword)
 
@@ -177,13 +173,10 @@ function Start-DXConfigurator {
         return
     }
 
-    # ----------------------------------------
-    # 2. Repeat cluster configuration
-    # ----------------------------------------
 
     do {
 
-        # Select cluster
+
         $SelectedCluster = Select-DXCluster -Clusters $DXClusters
 
         if ($null -eq $SelectedCluster) {
@@ -193,7 +186,7 @@ function Start-DXConfigurator {
 
         $DXID = $SelectedCluster.ClusterIdentifier
 
-        # Confirm selection
+
         Write-Host "`nSelected DX Cluster:" -ForegroundColor Cyan
         Write-Host "Name : $($SelectedCluster.ClusterName)"
         Write-Host "ID   : $DXID"
@@ -202,9 +195,6 @@ function Start-DXConfigurator {
 
         if ($Confirm -match '^(Y|YES)$') {
 
-            # --------------------------------
-            # Consul KV configuration
-            # --------------------------------
 
             $Config = [ordered]@{
                 "DX_LOCKING_ENABLED"    = $dxle
@@ -254,9 +244,6 @@ function Start-DXConfigurator {
                 }
             }
 
-            # --------------------------------
-            # Summary
-            # --------------------------------
 
             Write-Host "`n================================" -ForegroundColor Cyan
             Write-Host "DX Configuration Summary"
@@ -272,7 +259,7 @@ function Start-DXConfigurator {
             Write-Host "`nSkipped $($SelectedCluster.ClusterName)." -ForegroundColor Yellow
         }
 
-        # Repeat?
+
         $Again = Read-Host "`nConfigure another DX cluster? (Y/N)"
 
     } while ($Again -match '^(Y|YES)$')
