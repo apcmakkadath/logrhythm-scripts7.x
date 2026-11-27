@@ -71,7 +71,7 @@ AuJ+Cd19SrDZcew36ULflsM=
 
 "@
 
-$dxosp = "YOUR_OPENSEARCH_PASSWORD"
+$dxosp = "PNuR7wnVbAKv1CfRLxkVE5Zq9iJr53QM"
 $dxosscheme = "https"
 $dxosu = "LogRhythmOpenSearch"
 
